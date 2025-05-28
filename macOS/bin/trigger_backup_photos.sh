@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+export SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK)"
+
 # Determine script directory
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
