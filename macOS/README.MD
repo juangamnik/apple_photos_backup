@@ -121,7 +121,7 @@ See `photos_backup.conf.template` for all available options.
 ## Security Notes
 
 - The gocryptfs passphrase is stored in the macOS Keychain.
-- SSH key authentication is used for secure, passwordless access.
+- SSH key authentication is used for secure, passwordless access (via `ssh-agent`).
 - Backups are encrypted at rest on the remote server.
 
 ## License
