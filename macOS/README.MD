@@ -83,6 +83,7 @@ This keeps your system Python untouched and allows full use of osxphotos.
 
 4. **Automate backups (optional):**
    - Copy `com.user.trigger_backup_photos.plist` to `~/Library/LaunchAgents/`.
+   - The script expects `trigger_backup_photos.sh` in `/usr/local/bin`, so either make a symbolic link with `ln -s` or change the location in the `plist`.
    - Load the job with:
      ```sh
      launchctl load ~/Library/LaunchAgents/com.user.trigger_backup_photos.plist
