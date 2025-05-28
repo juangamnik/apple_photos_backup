@@ -114,6 +114,7 @@ Edit `photos_backup.conf` to set:
 - Export directories
 - Date threshold for incremental backups
 - Keychain service for storing the gocryptfs passphrase
+- During execution the script may ask for permission for `python3` to access the file system. You can add via drag&drop the executable to the privacy settings in `system settings`. If `python3` is a symbolic link, it might be necessary to look up the link target (so the binary) and give it the permission to access the file system instead of the symbolic link.
 
 See `photos_backup.conf.template` for all available options.
 
