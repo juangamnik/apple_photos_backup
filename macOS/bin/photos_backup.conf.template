@@ -1,0 +1,37 @@
+# photos_backup.conf
+# Default configuration for all photo backup scripts
+# (this file must be located in the same directory as the scripts)
+
+# SSHFS / gocryptfs configuration
+
+# Username for SSH connection
+SSH_USER="<user>"
+
+# Remote host or IP address
+SSH_HOST="<host>"
+
+# Path to SSH private key used for authentication
+IDENTITY_FILE="/Users/$(whoami)/.ssh/id_ed25519"
+
+# Path to the encrypted folder on the remote system
+REMOTE_DIR="/path/to/gocryptfs"
+
+# Local mount point for the SSHFS mount
+MOUNT_POINT="/Users/$(whoami)/backup/gocryptfs"
+
+# Local mount point for the decrypted gocryptfs volume
+DECRYPTED_MOUNT="/Users/$(whoami)/backup/decrypted"
+
+# macOS Keychain service name used to retrieve the gocryptfs password
+KEYCHAIN_SERVICE="photos_backup"
+
+# Photo export / backup settings
+
+# Temporary local directory for photo export before syncing
+LOCAL_EXPORT_DIR="/Users/$(whoami)/backup/tmp"
+
+# Default export destination (can be overridden)
+EXPORT_DIR="$LOCAL_EXPORT_DIR"
+
+# Only export photos taken or modified after this date (format: YYYY-MM-DD)
+DATE_THRESHOLD="2025-05-01"

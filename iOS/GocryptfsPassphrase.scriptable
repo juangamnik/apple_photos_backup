@@ -1,0 +1,12 @@
+{
+  "always_run_in_app" : false,
+  "icon" : {
+    "color" : "light-gray",
+    "glyph" : "magic"
+  },
+  "name" : "GocryptfsPassphrase",
+  "script" : "let key = \"gocryptfs_passphrase\";\n\n\/\/ Wenn noch keine Passphrase gespeichert ist, fordere sie ab\nif (!Keychain.contains(key)) {\n  let alert = new Alert();\n  alert.title = \"Passphrase eingeben\";\n  alert.message = \"Wird sicher im Scriptable-Schlüsselbund gespeichert.\";\n  alert.addTextField(\"Passphrase\", \"\");\n  alert.addAction(\"Speichern\");\n  await alert.present();\n\n  let passphrase = alert.textFieldValue(0);\n  Keychain.set(key, passphrase);\n}\n\n\/\/ Passphrase laden\nlet passphrase = Keychain.get(key);\n\n\/\/ An Shortcuts übergeben\nScript.setShortcutOutput(passphrase);\nScript.complete();",
+  "share_sheet_inputs" : [
+
+  ]
+}

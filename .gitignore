@@ -1,0 +1,56 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS folder attributes
+Icon?
+._*
+
+# macOS Trash
+.Trashes
+
+# macOS Spotlight
+.Spotlight-V100
+
+# macOS metadata
+.fseventsd
+
+# Vim/Emacs/VSCode/JetBrains editor swap and backup files
+*~
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+*.orig
+*.rej
+*.kate-swp
+*.idea/
+*.vscode/
+*.code-workspace
+
+# Shell script artifacts
+*.log
+*.out
+*.err
+
+# Environment files
+.env
+.env.*
+
+# Application-specific config
+photos_backup.conf
+
+# Node modules (if any JS tooling is used)
+node_modules/
+
+# Python cache (if any Python scripts are used)
+__pycache__/
+*.pyc
+
+# Other common ignores
+Thumbs.db
+ehthumbs.db
+
+# End of file
