@@ -1,6 +1,6 @@
 # Apple Photos Backup for macOS
 
-This toolset enables automated export and backup of photos and videos in original quality from the Apple Photos app on a Mac, even when Advanced Data Protection (ADP) is enabled for iCloud and "Optimize Mac Storage" is active. All scripts are executed locally on the Mac and are designed to work reliably with optimized and encrypted photo libraries.
+This toolset automates the export and encrypted backup of photos and videos from the Apple Photos app on your Mac. It enables regular, incremental backups in original quality—even when iCloud Advanced Data Protection (ADP) and "Optimize Mac Storage" are enabled. Photos are exported locally, synchronized in encrypted form to a remote server, and regularly versioned using [BorgBackup](https://www.borgbackup.org/). All orchestration is handled by shell scripts designed for reliability and automation on macOS.
 
 ## Features
 
@@ -22,9 +22,22 @@ This toolset enables automated export and backup of photos and videos in origina
 
 - macOS with Apple Photos and iCloud Photos enabled
 - [osxphotos](https://github.com/RhetTbull/osxphotos) (Python package)
-- [gocryptfs](https://github.com/rfjakob/gocryptfs) (installed via Homebrew or similar)
-- [sshfs](https://osxfuse.github.io/) (installed via Homebrew)
-- SSH access to a remote server for encrypted backup storage
+- [gocryptfs](https://github.com/rfjakob/gocryptfs) (via Homebrew or similar)
+- [sshfs](https://osxfuse.github.io/) (via Homebrew)
+- [borgbackup](https://www.borgbackup.org/) (recommended: Homebrew-tapped version with FUSE support, see below)
+- SSH access to a remote server for encrypted backups
+
+**Note on BorgBackup:**  
+For automatic pruning and mounting of archives, Borg with FUSE support is required.  
+It is recommended to install the tapped Homebrew version:
+```sh
+brew install borgbackup/tap/borgbackup-fuse
+```
+Alternatively:
+```sh
+brew install borgbackup
+```
+The tapped version (`borgbackup-fuse`) includes FUSE bindings and is recommended for macOS.
 
 ## Installation
 
@@ -41,20 +54,41 @@ This toolset enables automated export and backup of photos and videos in origina
    - Initialize an encrypted volume on your server using `gocryptfs -init`.
    - Store the passphrase securely.
 
-### Store gocryptfs Passphrase in macOS Keychain
+### Store gocryptfs and Borg Passphrases in macOS Keychain
 
-The gocryptfs passphrase must be stored in the macOS Keychain so that the scripts can mount the encrypted volume automatically.  
-**Keychain entry name:** Use the value of `KEYCHAIN_SERVICE` from your `photos_backup.conf` (default: `photos_backup`).
+The gocryptfs and Borg passphrases must be stored in the macOS Keychain so that the scripts can mount the encrypted volume and run backups automatically.  
+**Keychain entry names:** Use the values of `GOCRYPTFS_KEYCHAIN` and `BORG_KEYCHAIN` from your `photos_backup.conf` (defaults: `gocryptfs_photos_backup` and `borg_photos_backup`).
 
-To add the passphrase:
+To add the gocryptfs passphrase:
 
 ```sh
-security add-generic-password -a "$USER" -s photos_backup -w
+security add-generic-password -a "$USER" -s gocryptfs_photos_backup -w
 ```
 
-You will be prompted to enter the passphrase.  
-- `-s photos_backup` sets the service name (must match `KEYCHAIN_SERVICE` in your config).
-- The passphrase will be securely stored and accessed by the scripts.
+To add the Borg passphrase:
+
+```sh
+security add-generic-password -a "$USER" -s borg_photos_backup -w
+```
+
+You will be prompted to enter the passphrases.  
+- `-s gocryptfs_photos_backup` and `-s borg_photos_backup` set the service names (must match `GOCRYPTFS_KEYCHAIN` and `BORG_KEYCHAIN` in your config).
+- The passphrases will be securely stored and accessed by the scripts.
+
+#### Using Long Passphrases with Borg (Keychain Split Logic)
+
+If your Borg passphrase is very long or you want to split it for security reasons, you can store it in two separate macOS Keychain entries. The script will concatenate both entries automatically:
+
+- The main entry uses the value of `BORG_KEYCHAIN` (e.g., `borg_photos_backup`).
+- The second part should be stored in a keychain entry with the same name plus `_1` (e.g., `borg_photos_backup_1`).
+
+The script will read both entries and concatenate them to form the full passphrase. If the `_1` entry does not exist, only the main entry is used.
+
+Example to add both parts:
+```sh
+security add-generic-password -a "$USER" -s borg_photos_backup -w
+security add-generic-password -a "$USER" -s borg_photos_backup_1 -w
+```
 
 ### Install osxphotos using a virtual environment
 
@@ -123,6 +157,22 @@ See `photos_backup.conf.template` for all available options.
 - The gocryptfs passphrase is stored in the macOS Keychain.
 - SSH key authentication is used for secure, passwordless access (via `ssh-agent`).
 - Backups are encrypted at rest on the remote server.
+
+## Troubleshooting: launchctl and LaunchAgents
+
+If loading the LaunchAgent with `launchctl load ~/Library/LaunchAgents/com.user.trigger_backup_photos.plist` does not work (e.g., due to permission issues), you can try loading it as root for your user session:
+
+```sh
+sudo launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.trigger_backup_photos.plist
+```
+
+A reboot can also help if you encounter persistent issues with LaunchAgents not starting as expected.
+
+**Note:**  
+LaunchAgents do not run in a fully configured user environment as you would expect in a Terminal session. This can lead to permission or environment issues, especially when working with filesystems mounted via macFUSE (e.g., gocryptfs).  
+For example, writing directly into the decrypted gocryptfs directory from a LaunchAgent may fail due to macOS sandboxing or FUSE permission restrictions. Using `rsync` for file operations has proven more reliable in this context, which is why the scripts use `rsync` for syncing and deleting files.
+
+If you encounter permission problems or other issues related to LaunchAgents and file access, please open an issue in the repository with details about your setup and the error.
 
 ## License
 

@@ -28,11 +28,14 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/photos_backup.conf"
 
+DRY_RUN=false
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --date-threshold) DATE_THRESHOLD="$2"; shift 2;;
     --export-dir)     EXPORT_DIR="$2"; shift 2;;
-    *) echo "Usage: $0 [--date-threshold YYYY-MM-DD] [--export-dir DIR]"; exit 1;;
+    --dry-run)        DRY_RUN=true; shift ;;
+    *) echo "Usage: $0 [--date-threshold YYYY-MM-DD] [--export-dir DIR] [--dry-run]"; exit 1;;
   esac
 done
 
@@ -46,6 +49,20 @@ DATE_EXPR=$(echo "$DATE_THRESHOLD" | awk -F- '{printf "datetime(%d, %d, %d, tzin
 
 mkdir -p "$EXPORT_DIR"
 export TMPDIR=/tmp
+
+if $DRY_RUN; then
+  echo "[DRY-RUN] Would export photos taken or modified since $DATE_THRESHOLD to $EXPORT_DIR"
+  echo "[DRY-RUN] Would run:"
+  echo "\"$SCRIPT_DIR/osxphotos.sh\" export \"$EXPORT_DIR\" \\"
+  echo "  --sidecar xmp \\"
+  echo "  --export-aae \\"
+  echo "  --download-missing \\"
+  echo "  --update \\"
+  echo "  --directory \"{created.year}/{created.mm}/{created.dd}\" \\"
+  echo "  --query-eval \"(photo.date and photo.date > $DATE_EXPR) or (photo.date_modified and photo.date_modified > $DATE_EXPR)\" \\"
+  echo "  --cleanup"
+  exit 0
+fi
 
 echo "Exporting photos taken or modified since $DATE_THRESHOLD to $EXPORT_DIR"
 "$SCRIPT_DIR/osxphotos.sh" export "$EXPORT_DIR" \

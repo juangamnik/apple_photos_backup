@@ -23,9 +23,10 @@ MOUNT_POINT="/Users/$(whoami)/backup/gocryptfs"
 DECRYPTED_MOUNT="/Users/$(whoami)/backup/decrypted"
 
 # macOS Keychain service name used to retrieve the gocryptfs password
-KEYCHAIN_SERVICE="photos_backup"
+GOCRYPTFS_KEYCHAIN="photos_backup"
 
-# Photo export / backup settings
+# macOS Keychain service name used to retrieve the borg backup password
+BORG_KEYCHAIN="borg_backup"
 
 # Temporary local directory for photo export before syncing
 LOCAL_EXPORT_DIR="/Users/$(whoami)/backup/tmp"
@@ -35,3 +36,6 @@ EXPORT_DIR="$LOCAL_EXPORT_DIR"
 
 # Only export photos taken or modified after this date (format: YYYY-MM-DD)
 DATE_THRESHOLD="2025-05-01"
+
+# Path to the Borg repository (e.g. ssh://user@host:/path/to/repo)
+BORG_REPO="<user>@<host>:/path/to/borg-repo"

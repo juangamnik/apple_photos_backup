@@ -15,7 +15,7 @@ Options (override values from photos_backup.conf):
   --remote-dir PATH         Remote encrypted directory (via SSHFS)
   --mount-point PATH        Local mount point for SSHFS
   --decrypted-mount PATH    Local mount point for decrypted gocryptfs volume
-  --keychain-service NAME   macOS keychain service for gocryptfs password
+  --gocryptfs-keychain NAME   macOS keychain service for gocryptfs password
   --help                    Show this help text and exit
   --version                 Show script version and exit
 
@@ -40,7 +40,8 @@ while [[ $# -gt 0 ]]; do
     --remote-dir)        REMOTE_DIR="$2";       shift 2;;
     --mount-point)       MOUNT_POINT="$2";      shift 2;;
     --decrypted-mount)   DECRYPTED_MOUNT="$2";  shift 2;;
-    --keychain-service)  KEYCHAIN_SERVICE="$2"; shift 2;;
+    --gocryptfs-keychain) GOCRYPTFS_KEYCHAIN="$2"; shift 2;;
+    --borg-keychain)     BORG_KEYCHAIN="$2";    shift 2;;
     *) echo "Unknown option: $1"; exit 1;;
   esac
 done
@@ -119,7 +120,7 @@ fi
 
 echo "[$(timestamp)] INFO: Mounting gocryptfs…"
 /opt/homebrew/bin/gocryptfs \
-  -extpass "security find-generic-password -s $KEYCHAIN_SERVICE -w" \
+  -extpass "security find-generic-password -s $GOCRYPTFS_KEYCHAIN -w" \
   "$MOUNT_POINT" "$DECRYPTED_MOUNT" &
 GOCYPTFS_PID=$!
 wait "$GOCYPTFS_PID"

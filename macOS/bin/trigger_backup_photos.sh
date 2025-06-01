@@ -28,7 +28,8 @@ if ! /usr/bin/ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" exit >/dev/null 2>&1; then
   exit 1
 fi
 
-# Trigger the actual backup script
-"$SCRIPT_DIR/backup_photos.sh"
+# Trigger the actual backup script as a login shell using the user's default shell
+USER_SHELL="$(dscl . -read /Users/$USER UserShell | awk '{print $2}')"
+"$USER_SHELL" -l -c "\"$SCRIPT_DIR/backup_photos.sh\""
 
 exit $?
